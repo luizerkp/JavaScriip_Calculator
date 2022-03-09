@@ -4,18 +4,120 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #ffffff;
+    background-color: #f1eeee;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+}
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #e9e8e8;
+    font-weight: bold;
+    background: #3d4f69;
+    text-align: center;
+}
+.header p {
+    font-size: 18px;
+    padding: 5px;
+    margin: 10px;
+    color: #e9e8e8;
+}
+.header  h1 {
+    font-size: 40px;
+    color: #e9e8e8;
+}
+.highlight {
+    background-color: #f1eeee;
+    color: #1F2937;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    flex: 1 0 auto;
 }
 
+.calc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    grid-gap: 10px;
+    background-color: #1F2937;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.display-container {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    max-width: 360px;
+    background-color: #ffffff;
+    border: solid 2px #646464;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: bold;
+    overflow-wrap: break-word;
+}
+
+#previous, #current{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    word-wrap: wrap;
+    word-break: break-all;
+}
+#previous {
+    min-height: 30px;
+    font-size: 1em; 
+}
+#current {
+    font-size: 2.5em;
+    min-height: 60px;
+}
+
+button {
+    display: flex;
+    height: 75px;
+    width: 85px; 
+    border: solid 1px #646464;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25%;
+    font-size: 1.5rem;
+    font-weight: bolder;
+}
+#clear, #delete, #equals{  
+    color: white;
+}
+.operation {
+    color: green;
+}
+#clear {
+    background-color: red;
+}
+#delete {
+    background-color: #0c0c0c;
+}
+#equal {
+    background-color: rgb(228, 163, 67);
+}
 /* Sticky Footer */
 .footer {
-    display: flex;
-    flex-shrink: 0;
-    color: #0c0c0c;
-    height: 72px;
-    background: #532c69;
-    font-weight: bold;
+    display: flex;    
     justify-content: center;
-    align-items: baseline;
+    align-items: center;
+    flex-shrink: 0;
+    color: #e9e8e8;
+    height: 100px;
+    background: #3d4f69;
+    font-weight: bold;
+
 }
