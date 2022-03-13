@@ -19,8 +19,8 @@
         <div class="calc-grid">
             <!-- 1st row -->
             <div class="display-container">
-                <div id="previous">77</div>
-                <div id="current">99</div>
+                <div id="memory"></div>
+                <div id="current"></div>
             </div>            
             <!-- 2nd row -->
             <button id="clear">clr</button> 
@@ -29,32 +29,32 @@
             <button class="operation" id="mod">mod</button>
             
             <!-- 3rd row -->
-            <button class="operation" id="exp"><span>x<sup>y</sup></span></button>
+            <button class="operation" id="exponent">x&#x02B8;</button>
             <button class="operation" id="factorial">x!</button>
-            <button class="operation" id="square-root">&Sqrt;</button>
+            <button class="operation" id="squareroot">&Sqrt;</button>
             <button class="operation" id="log">log</button>
 
             <!-- 4th row -->
-            <button class="number">7</button>
-            <button class="number">8</button>
-            <button class="number">9</button>
+            <button class="number" data-key="55" data-number>7</button>
+            <button class="number" data-key="56">8</button>
+            <button class="number" data-key="57">9</button>
             <button class="operation" id="divide">÷</button>
   
             <!-- 5th row -->
-            <button class="number">4</button>
-            <button class="number">5</button>
-            <button class="number">6</button>
+            <button class="number" data-key="52">4</button>
+            <button class="number" data-key="53">5</button>
+            <button class="number" data-key="54">6</button>
             <button class="operation" id="multiply">×</button>
   
             <!-- 6th row -->
-            <button class="number">1</button>
-            <button class="number">2</button>
-            <button class="number">3</button>
+            <button class="number" data-key="49">1</button>
+            <button class="number"data-key="50">2</button>
+            <button class="number"data-key="51">3</button>
             <button class="operation" id="subtract">−</button>
  
             <!-- 7th row -->
             <button id="decimal">.</button>
-            <button class="number">0</button>
+            <button class="number" data-key="48">0</button>
             <button class="operation" id="add">+</button>
             <button id="equal">=</button>
         </div>

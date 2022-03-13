@@ -67,14 +67,14 @@ body {
     overflow-wrap: break-word;
 }
 
-#previous, #current{
+#memory, #current{
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     word-wrap: wrap;
     word-break: break-all;
 }
-#previous {
+#memory {
     min-height: 30px;
     font-size: 1em; 
 }
