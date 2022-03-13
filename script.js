@@ -86,3 +86,7 @@ function interpretKeyboardInput(input){
     }
     console.log(input);
 }
+
+// notes need to work on memory diplay now display memory funtion is written but need to call it and test that works
+// as inteded. Next move on to creating all the opeartions funtions and figure out how to call them. Finally make sure 
+// it all works as intended. NOTE: Created opsObj for keyboard opeartions input.
