@@ -6,6 +6,7 @@ footerPara.textContent = `Copyright © ${date} Luis Tamarez All Rights Reserved`
 footer.appendChild(footerPara);
 
 const keyboardInputs = ['+', '-', '/', '*', 'x', 'X', '%'];
+const oneArgOps = ['log', 'root', 'factorial'];
 
 const OpsObj = {
     '+': 'add',
@@ -26,7 +27,7 @@ const OpsObj = {
 const numbers = document.querySelectorAll(".number");
 const decimal = document.querySelector("#decimal");
 const polarityButton = document.querySelector('#polarity');
-const equal = document.querySelector(".equal");
+const equalButton = document.querySelector("#equal");
 const operations = document.querySelectorAll(".operation");
 const currentDisplay = document.querySelector('#current');
 const memoryDisplay = document.querySelector('#memory');
@@ -73,19 +74,27 @@ decimal.addEventListener('click', function (decimal) {
 operations.forEach(operation => {
     operation.addEventListener('click', function (operation) {
         // if there is not current display don't do anything
+        operationInProgess = OpsObj[currentOperation];
+        console.log('operationInProgess', operationInProgess);
+        let results = null;
+        
         if (currentDisplay.innerText === '') {
             return;
         } 
-
-        if (memoryDisplay.innerText === '') {
+        else if (oneArgOps.includes(operationInProgess)) {
+            console.log('one arg');
+            firstNumber = currentDisplay.innerText;
+            results = funtionOpsObj[operationInProgess](firstNumber);
+            displayMemory(operation.target.innerText);
+            currentDisplay.innerText = results;
+            startOver();
+        }
+        else if (memoryDisplay.innerText === '') {
             displayMemory(operation.target.innerText);
         }
         else {
             secondNumber = parseFloat(currentDisplay.innerText);
-            console.log(currentOperation);
-            currentOperation = OpsObj[currentOperation];
-            console.log(currentOperation);
-            let results = funtionOpsObj[currentOperation](firstNumber, secondNumber);
+            results = funtionOpsObj[operationInProgess](firstNumber, secondNumber);
             currentDisplay.innerText = results;
             memoryDisplay.innerText = '';
             displayMemory(operation.target.innerText);
@@ -96,6 +105,7 @@ operations.forEach(operation => {
 polarityButton.addEventListener('click', polarity);
 deleteNumber.addEventListener('click', deleteLast);
 clear.addEventListener('click', clearDisplay);
+equalButton.addEventListener('click', equal);
 
 function displayCurrent(number) {
     let node = document.createTextNode(number);
@@ -120,13 +130,13 @@ function displayMemory(operation=null) {
             operation = 'percent';
         }
         if (operation === 'x!') {
-            operation = 'fact';
+            operation = '!';
         }
         if (operation === 'xʸ') {
             operation = 'e';
         }
 
-        node = document.createTextNode(`${current} ${operation}`)
+        node = document.createTextNode(`${current}${operation}`)
     }
 
     currentDisplay.innerText = '';
@@ -171,6 +181,23 @@ function clearDisplay() {
     }
 }
 
+function equal() {
+    if (memoryDisplay.innerText === '') {
+        return;
+    }
+    else if (currentDisplay.innerText === '') {
+        currentDisplay.innerText = firstNumber;
+        memoryDisplay.innerText = '';
+    }else {
+        secondNumber = parseFloat(currentDisplay.innerText);
+        operationInProgess = OpsObj[currentOperation];
+        let results = funtionOpsObj[operationInProgess](firstNumber, secondNumber);
+        currentDisplay.innerText = results;
+        memoryDisplay.innerText = `${firstNumber}${currentOperation}${secondNumber} =`;
+    }
+    startOver();
+}
+
 function interpretKeyboardInput(input){
     if (input >= 0 && input <= 9)
     {
@@ -207,47 +234,38 @@ function startOver(){
 }
 // Math operations
 function add(first, second) {
-    startOver();
     return first + second;
 }
 
 function subtract(first, second) {
-    startOver();
     return first - second;
 }
   
 function divide(first, second) {
-    startOver();
     return first / second;
 }
 
 function multiply(first, second) {
-    startOver();
     return first * second;
 }
 
 function power(base, power){
-    startOver();
     return Math.pow(base, power); 
 }
 
 function root(number){
-    startOver();
     return Math.sqrt(number);
 }
 
 function percent(first, second) {
-    startOver();
     return (first / 100) * second;
 }
 
-function log(number){
-    startOver();
+function log(number){  
     return Math.log(number);
 }
 
 function factorial (number){
-    startOver();
     if (number=== 0) {
       return 1;
     } else {
@@ -258,5 +276,4 @@ function factorial (number){
 // curently working on the operations funtionallity line 73-94
 // Need to add error handling 
 // Need to fix one number operations
-// Need to provide functionality for equal button
-// *** When '=' is pressed, the current operation is applied to the current number and memoryDisplay is cleared.
+// !!! Why is operationInProgess not working? why is it undefined?
