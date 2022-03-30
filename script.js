@@ -23,7 +23,6 @@ const OpsObj = {
     'log': 'log'
 };
 
-
 const numbers = document.querySelectorAll(".number");
 const decimal = document.querySelector("#decimal");
 const polarityButton = document.querySelector('#polarity');
@@ -40,6 +39,7 @@ let operationDisplay = null;
 let firstNumber = null;
 let secondNumber = null;
 let operationFinished = false;
+let operationStarted = false;
 
 const funtionOpsObj = {
     'add': add,
@@ -76,11 +76,18 @@ decimal.addEventListener('click', function (decimal) {
 
 operations.forEach(operation => {
     operation.addEventListener('click', function (operation) {
+        operationStarted = true;
+
+        if (operationFinished) {
+            operationFinished = false;
+            memoryDisplay.innerText = '';
+        }
+
         let results = null;
         let current = currentDisplay.innerText;
         let memory = memoryDisplay.innerText;
         let operationInProgress = operation.target.innerText;
-        
+
         // if there is no current number or number in memory, do nothing
         if (current === '' && memory === '') {
             return;
@@ -96,13 +103,10 @@ operations.forEach(operation => {
         } 
         
         // if operation is a one argument operation, do the operation
-        if (oneArgOps.includes(OpsObj[operationInProgress])) {
-            console.log('2nd');
-            oneArgNumber = parseFloat(currentDisplay.innerText) || firstNumber; 
-            memoryDisplay.innerText = '';
-            displayMemory(operationInProgress, oneArgNumber);
-            results = funtionOpsObj[currentOperation](oneArgNumber);  
-            currentDisplay.innerText = results;
+        if (oneArgOps.includes(OpsObj[operationInProgress]) && memory === '') {
+            console.log('2nd');       
+            oneArgFunctions(operationInProgress);
+            startOver();
             return;
         }
         
@@ -115,13 +119,20 @@ operations.forEach(operation => {
         // if there is a number in memory and a curent number, do the operation
         if (current !== '' && memory !== '') {
             console.log('4th');
-            secondNumber = parseFloat(currentDisplay.innerText);
-            console.log(`${firstNumber} ${currentOperation} ${secondNumber}`);
-            results = funtionOpsObj[currentOperation](firstNumber, secondNumber);
-            console.log(results);
-            currentDisplay.innerText = results;
-            memoryDisplay.innerText = '';
-            displayMemory(operationInProgress, results); 
+            if (oneArgOps.includes(OpsObj[operationInProgress])) {
+                console.log('2nd'); 
+                if (results === null) {
+                    firstNumber = twoArgFunctions();
+                }      
+                oneArgFunctions(operationInProgress);
+            }
+            else {
+                results = twoArgFunctions();     
+                currentDisplay.innerText = results;
+                memoryDisplay.innerText = '';
+                displayMemory(operationInProgress, results);
+            }
+            secondNumber = null;
         }
     });
 });
@@ -131,12 +142,28 @@ deleteNumber.addEventListener('click', deleteLast);
 clear.addEventListener('click', clearDisplay);
 equalButton.addEventListener('click', equal);
 
+function twoArgFunctions() {
+    secondNumber = parseFloat(currentDisplay.innerText);
+    console.log(`${firstNumber} ${currentOperation} ${secondNumber}`);
+    let twoArgResults = funtionOpsObj[currentOperation](firstNumber, secondNumber);
+    console.log(twoArgResults);
+    return twoArgResults;
+}
+
+function oneArgFunctions(operationInProgress) {
+    let oneArgNumber = firstNumber || parseFloat(currentDisplay.innerText);
+    memoryDisplay.innerText = '';
+    displayMemory(operationInProgress, oneArgNumber);
+    results = funtionOpsObj[currentOperation](oneArgNumber);
+    currentDisplay.innerText = results;
+}
+
 function displayCurrent(number) {
 
-    // if (operationFinished) {
-        //clearDisplay();
-        //operationFinished = false;
-    //}
+    if (operationStarted) {
+        currentDisplay.innerText = '';
+        operationStarted = false;
+    }
 
     let node = document.createTextNode(number);
     currentDisplay.appendChild(node);
@@ -164,7 +191,7 @@ function displayMemory(operation, currentNumber) {
         operationDisplay = '!';
     }
     if (operationDisplay === 'xʸ') {
-        operationDisplay = 'e';
+        operationDisplay = '^';
     }
 
     if (operationDisplay === '√' || operationDisplay === 'log') {
@@ -174,8 +201,6 @@ function displayMemory(operation, currentNumber) {
         node = document.createTextNode(`${currentNumber}${operationDisplay}`);
     }
 
-
-    currentDisplay.innerText = '';
     memoryDisplay.appendChild(node);
 }
 
@@ -219,7 +244,7 @@ function clearDisplay() {
 function equal() {
     operationFinished = true;
 
-    if (memoryDisplay.innerText === '') {
+    if (memoryDisplay.innerText === '' || operationStarted || currentOperation === null) {
         return;
     }
     else if (currentDisplay.innerText === '') {
@@ -229,8 +254,15 @@ function equal() {
         secondNumber = parseFloat(currentDisplay.innerText);
         let results = funtionOpsObj[currentOperation](firstNumber, secondNumber);
         currentDisplay.innerText = results;
-        memoryDisplay.innerText = `${firstNumber}${operationDisplay}${secondNumber} =`;
+        if (currentOperation === 'power') {
+            memoryDisplay.innerText = `${firstNumber}${operationDisplay}(${secondNumber}) =`;
+        }
+        else {
+            memoryDisplay.innerText = `${firstNumber}${operationDisplay}${secondNumber} =`;
+        }
     }
+    console.log(firstNumber);
+    console.log(secondNumber);
     startOver();
 }
 
@@ -258,7 +290,12 @@ function interpretKeyboardInput(input){
         equalButton.click();
     }
     else if (keyboardInputs.includes(input)){
-        console.log(OpsObj[input]);
+        operations.forEach(function(operation){
+            let operattionId = operation.id;
+            if (OpsObj[input] === operattionId) {
+                operation.click();
+            }
+        });
     }
 }
 
@@ -267,6 +304,7 @@ function startOver(){
     secondNumber = null;
     currentOperation = null;
     operationDisplay = null;
+    operationFinished = true;
 }
 
 // Math operations
@@ -287,6 +325,7 @@ function multiply(first, second) {
 }
 
 function power(base, power){
+    console.log(`${base} to the power of ${power}`);
     return Math.pow(base, power); 
 }
 
@@ -311,4 +350,3 @@ function factorial (number){
 }
 
 // Need to add error handling 
-// Need to finsih keyboard input handling
