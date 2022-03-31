@@ -204,7 +204,7 @@ function displayCurrent(number) {
 
     // handles display when after the equals button is clicked
     if (operationFinished) {
-        currentDisplay.innerText = '';
+       clearDisplay();
         operationFinished = false;
     }
 
@@ -256,8 +256,14 @@ function displayMemory(operation, currentNumber) {
 // deletes the last number in the current display
 function deleteLast(){
     let currentNumbers = currentDisplay.innerText;
+
     if (!currentNumbers) {
         return;
+    }
+
+    if (operationFinished) {
+        memoryDisplay.innerText = '';
+        operationFinished = false;
     }
 
     let newNumbers = currentNumbers.slice(0, currentNumbers.length - 1);
@@ -278,7 +284,12 @@ function polarity(){
     else if(current === '-') {
         return currentDisplay.innerText = '';
     }
+
     let newNumber = current * -1;
+    if (decimal.disabled && !newNumber.toString().includes('.')) {
+        newNumber = newNumber.toString() + '.';
+    }
+
     currentDisplay.innerText = '';
     displayCurrent(newNumber);
 }
@@ -380,6 +391,10 @@ function checkError(number){
     }
 }
 
+function roundToTenDecimals(number){
+    return Math.round(number * 10000000000) / 10000000000;
+}
+
 // Math operations
 function add(first, second) {
     return first + second;
@@ -390,7 +405,8 @@ function subtract(first, second) {
 }
   
 function divide(first, second) {
-    return first / second;
+    let answer = first / second;
+    return roundToTenDecimals(answer);
 }
 
 function multiply(first, second) {
@@ -399,37 +415,49 @@ function multiply(first, second) {
 
 function power(base, power){
     console.log(`${base} to the power of ${power}`);
-    return Math.pow(base, power); 
+    return roundToTenDecimals(Math.pow(base, power)); 
 }
 
 function root(number){
     if (number < 0) {
         return -1;
     }
-    return Math.sqrt(number);
+    return roundToTenDecimals (Math.sqrt(number));
 }
 
 function percent(first, second) {
-    return (first / 100) * second;
+    let answer = (first / 100) * second;
+    return Math.round(answer * 100) / 100;
 }
 
 function log(number){ 
     if (number <= 0) {
         return -1;
     }
-    return Math.log10(number);
+    return roundToTenDecimals(Math.log10(number));
 }
 
 function factorial (number){
     if (number < 0) {
+        console.log(number);
         return -1;
+    }
+    else if (number > 0 && number.toString().includes('.')) {
+        number = Math.round(number * 100000000) / 100000000;
+        return gamma(number + 1);
     }
     else {
         if (number=== 0) {
-        return 1;
+            return 1;
         } else {
-        return number * factorial(number - 1);
+            return number * factorial(number - 1);
         }
     }
-
 }
+
+// source Peter Olson's answer on stackoverflow.com @ shorturl.at/aczX2 
+function gamma(z) {
+    let answer = Math.sqrt(2 * Math.PI / z) * Math.pow((1 / Math.E) * (z + 1 / (12 * z - 1 / (10 * z))), z);
+
+    return Math.round answer;
+  }
