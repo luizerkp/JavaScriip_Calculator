@@ -6,7 +6,7 @@ footerPara.textContent = `Copyright © ${date} Luis Tamarez All Rights Reserved`
 footer.appendChild(footerPara);
 
 // keeps track of the current operation of possible keyboard inputs to match in opsObj
-const keyboardInputs = ['+', '-', '/', '*', 'x', 'X', '%'];
+const keyboardInputs = ['+', '-', '/', '*', 'x', 'X', '%', '^'];
 const oneArgOps = ['log', 'root', 'factorial'];
 
 // translates the operations symbols and keyboard inputs to the operation function names
@@ -21,6 +21,7 @@ const opsObj = {
     '%': 'percent',
     'x!': 'factorial',
     'xʸ': 'power',
+    '^': 'power',
     '√': 'root',
     'log': 'log'
 };
@@ -43,6 +44,7 @@ let secondNumber = null;
 let operationFinished = false;
 let errorFound = false;
 
+// object that contains the math operations functions called by the buttons
 const functionOpsObj = {
     'add': add,
     'subtract': subtract,
@@ -56,6 +58,7 @@ const functionOpsObj = {
 };
 
 document.addEventListener('keydown', function (e) {
+    document.activeElement.blur();
     interpretKeyboardInput(e.key);
 })
 
@@ -110,8 +113,6 @@ operations.forEach(operation => {
         // do the operation if it is a one argument operation
         if (current === '' && memory !== '') {
             memoryDisplay.innerText = '';
-            console.log(currentOperation);
-            console.log(firstNumber);
             if (oneArgOps.includes(opsObj[operationInProgress])) {  
                 oneArgFunctions(operationInProgress);
                 startOver();
@@ -123,7 +124,6 @@ operations.forEach(operation => {
         // if no memory, store the current number as firstNumber and  current operation
         if (memory === '') {
             displayMemory(operationInProgress, current);
-            console.log('3rd');
         }
 
         // if there is a number in memory and a curent number, do the operation
@@ -137,7 +137,7 @@ operations.forEach(operation => {
                     if (error !== 'valid') {
                         clearDisplay();
                         startOver();
-                        memoryDisplay.innerText = error;
+                        currentDisplay.innerText = error;
                         errorFound = true;
                         return;
                     } 
@@ -153,7 +153,7 @@ operations.forEach(operation => {
                 if (error !== 'valid') {
                     clearDisplay();
                     startOver();
-                    memoryDisplay.innerText = error;
+                    currentDisplay.innerText = error;
                     errorFound = true;
                     return;
                 } 
@@ -175,9 +175,7 @@ equalButton.addEventListener('click', equal);
 // executes the operations that require two numbers
 function twoArgFunctions() {
     secondNumber = parseFloat(currentDisplay.innerText);
-    console.log(`${firstNumber} ${currentOperation} ${secondNumber}`);
     let twoArgResults = functionOpsObj[currentOperation](firstNumber, secondNumber);
-    console.log(twoArgResults);
     return twoArgResults;
 }
 
@@ -192,7 +190,7 @@ function oneArgFunctions(operationInProgress) {
     if (error !== 'valid') {
         clearDisplay();
         startOver();
-        memoryDisplay.innerText = error;
+        currentDisplay.innerText = error;
         errorFound = true;
         return;
     }
@@ -333,8 +331,7 @@ function equal() {
             memoryDisplay.innerText = `${firstNumber}${operationDisplay}${secondNumber} =`;
         }
     }
-    console.log(firstNumber);
-    console.log(secondNumber);
+
     startOver();
 }
 
@@ -347,7 +344,7 @@ function interpretKeyboardInput(input){
     {
         decimal.click();
     }
-    else if (input === '-' && currentDisplay.innerText === '')
+    else if ((input === '-' && currentDisplay.innerText === '') || currentDisplay.innerText === '-')
     {
         polarityButton.click();
     }
@@ -381,10 +378,10 @@ function startOver(){
 
 function checkError(number){
     if (isNaN(number)) {
-        return 'Error: Invalid Operation';
+        return 'Error';
     }
-    else if (number < 0 && oneArgOps.includes(currentOperation)) {
-        return 'Error: Negative Number';
+    else if (number === Infinity || number === -Infinity) {
+        return number;
     }
     else {      
         return 'valid';
@@ -414,14 +411,10 @@ function multiply(first, second) {
 }
 
 function power(base, power){
-    console.log(`${base} to the power of ${power}`);
     return roundToTenDecimals(Math.pow(base, power)); 
 }
 
 function root(number){
-    if (number < 0) {
-        return -1;
-    }
     return roundToTenDecimals (Math.sqrt(number));
 }
 
@@ -431,33 +424,16 @@ function percent(first, second) {
 }
 
 function log(number){ 
-    if (number <= 0) {
-        return -1;
-    }
     return roundToTenDecimals(Math.log10(number));
 }
 
 function factorial (number){
-    if (number < 0) {
-        console.log(number);
-        return -1;
-    }
-    else if (number > 0 && number.toString().includes('.')) {
-        number = Math.round(number * 100000000) / 100000000;
-        return gamma(number + 1);
-    }
-    else {
-        if (number=== 0) {
-            return 1;
-        } else {
-            return number * factorial(number - 1);
-        }
-    }
+    return gamma(number + 1);
 }
 
 // source Peter Olson's answer on stackoverflow.com @ shorturl.at/aczX2 
+// rounded to 2 decimal places for gamma function not accurate enough when using decimal numbers
 function gamma(z) {
     let answer = Math.sqrt(2 * Math.PI / z) * Math.pow((1 / Math.E) * (z + 1 / (12 * z - 1 / (10 * z))), z);
-
-    return Math.round answer;
-  }
+    return Math.round (answer * 100) / 100;
+}
