@@ -5,10 +5,12 @@ let date = new Date().getFullYear();
 footerPara.textContent = `Copyright © ${date} Luis Tamarez All Rights Reserved`;
 footer.appendChild(footerPara);
 
+// keeps track of the current operation of possible keyboard inputs to match in opsObj
 const keyboardInputs = ['+', '-', '/', '*', 'x', 'X', '%'];
 const oneArgOps = ['log', 'root', 'factorial'];
 
-const OpsObj = {
+// translates the operations symbols and keyboard inputs to the operation function names
+const opsObj = {
     '+': 'add',
     '-': 'subtract',
     'x': 'multiply',
@@ -39,9 +41,9 @@ let operationDisplay = null;
 let firstNumber = null;
 let secondNumber = null;
 let operationFinished = false;
-let operationStarted = false;
+let errorFound = false;
 
-const funtionOpsObj = {
+const functionOpsObj = {
     'add': add,
     'subtract': subtract,
     'multiply': multiply,
@@ -68,6 +70,10 @@ decimal.addEventListener('click', function (decimal) {
     if (currentDisplay.innerText === '') {
         displayCurrent('0.');
     }
+    else if (operationFinished) {
+        memoryDisplay.innerText = '';
+        displayCurrent('0.');
+    }
     else{
         displayCurrent('.');
     }
@@ -76,8 +82,7 @@ decimal.addEventListener('click', function (decimal) {
 
 operations.forEach(operation => {
     operation.addEventListener('click', function (operation) {
-        operationStarted = true;
-
+        // if operation is finisned via clicking '=' button clear memory
         if (operationFinished) {
             operationFinished = false;
             memoryDisplay.innerText = '';
@@ -88,46 +93,71 @@ operations.forEach(operation => {
         let memory = memoryDisplay.innerText;
         let operationInProgress = operation.target.innerText;
 
+
         // if there is no current number or number in memory, do nothing
-        if (current === '' && memory === '') {
+        if ((current === '' && memory === '') || errorFound) {
             return;
         }
 
-        // if there is no current number, but there is a number in memory, change operation
-        if (current === '' && memory !== '') {
-            console.log('1st');
-            memoryDisplay.innerText = '';
-            console.log(currentOperation);
-            console.log(firstNumber);
-            displayMemory(operationInProgress, firstNumber);
-        } 
-        
-        // if operation is a one argument operation, do the operation
-        if (oneArgOps.includes(OpsObj[operationInProgress]) && memory === '') {
-            console.log('2nd');       
+        // if operation is a one argument operation and memory is empty, do the operation
+        if (oneArgOps.includes(opsObj[operationInProgress]) && memory === '') {     
             oneArgFunctions(operationInProgress);
             startOver();
             return;
         }
-        
-        // if no memory, store the current number as firstNumber and operation
-        if (memoryDisplay.innerText === '') {
+
+        // if there is no current number, but there is a number in memory, change operation or 
+        // do the operation if it is a one argument operation
+        if (current === '' && memory !== '') {
+            memoryDisplay.innerText = '';
+            console.log(currentOperation);
+            console.log(firstNumber);
+            if (oneArgOps.includes(opsObj[operationInProgress])) {  
+                oneArgFunctions(operationInProgress);
+                startOver();
+                return;
+            }
+            displayMemory(operationInProgress, firstNumber);
+        } 
+       
+        // if no memory, store the current number as firstNumber and  current operation
+        if (memory === '') {
             displayMemory(operationInProgress, current);
             console.log('3rd');
         }
 
         // if there is a number in memory and a curent number, do the operation
         if (current !== '' && memory !== '') {
-            console.log('4th');
-            if (oneArgOps.includes(OpsObj[operationInProgress])) {
-                console.log('2nd'); 
+            if (oneArgOps.includes(opsObj[operationInProgress])) {
                 if (results === null) {
                     firstNumber = twoArgFunctions();
+                    let error = checkError(firstNumber);
+
+                    // Error handling
+                    if (error !== 'valid') {
+                        clearDisplay();
+                        startOver();
+                        memoryDisplay.innerText = error;
+                        errorFound = true;
+                        return;
+                    } 
+                    // secondNumber = null;
                 }      
                 oneArgFunctions(operationInProgress);
             }
             else {
-                results = twoArgFunctions();     
+                results = twoArgFunctions();
+                let error = checkError(results);
+
+                // Error handling
+                if (error !== 'valid') {
+                    clearDisplay();
+                    startOver();
+                    memoryDisplay.innerText = error;
+                    errorFound = true;
+                    return;
+                } 
+
                 currentDisplay.innerText = results;
                 memoryDisplay.innerText = '';
                 displayMemory(operationInProgress, results);
@@ -142,38 +172,56 @@ deleteNumber.addEventListener('click', deleteLast);
 clear.addEventListener('click', clearDisplay);
 equalButton.addEventListener('click', equal);
 
+// executes the operations that require two numbers
 function twoArgFunctions() {
     secondNumber = parseFloat(currentDisplay.innerText);
     console.log(`${firstNumber} ${currentOperation} ${secondNumber}`);
-    let twoArgResults = funtionOpsObj[currentOperation](firstNumber, secondNumber);
+    let twoArgResults = functionOpsObj[currentOperation](firstNumber, secondNumber);
     console.log(twoArgResults);
     return twoArgResults;
 }
 
+// executes the operations that require one number
 function oneArgFunctions(operationInProgress) {
     let oneArgNumber = firstNumber || parseFloat(currentDisplay.innerText);
     memoryDisplay.innerText = '';
     displayMemory(operationInProgress, oneArgNumber);
-    results = funtionOpsObj[currentOperation](oneArgNumber);
+    results = functionOpsObj[currentOperation](oneArgNumber);
+    let error = checkError(results);
+    // Error handling
+    if (error !== 'valid') {
+        clearDisplay();
+        startOver();
+        memoryDisplay.innerText = error;
+        errorFound = true;
+        return;
+    }
     currentDisplay.innerText = results;
 }
 
+// displays the current number(s)
 function displayCurrent(number) {
 
-    if (operationStarted) {
+    // handles display when after the equals button is clicked
+    if (operationFinished) {
         currentDisplay.innerText = '';
-        operationStarted = false;
+        operationFinished = false;
+    }
+
+    // handles display when there is an error
+    if (errorFound) {
+        currentDisplay.innerText = '';
+        errorFound = false;
     }
 
     let node = document.createTextNode(number);
     currentDisplay.appendChild(node);
 }
 
-function displayMemory(operation, currentNumber) {
-    // let current = currentDisplay.innerText;
-    let node = null;
 
-    currentOperation = OpsObj[operation];
+function displayMemory(operation, currentNumber) {
+    let node = null;
+    currentOperation = opsObj[operation];
 
     // saves the current number and operation to memory
     if (typeof currentNumber === 'number') {
@@ -201,9 +249,11 @@ function displayMemory(operation, currentNumber) {
         node = document.createTextNode(`${currentNumber}${operationDisplay}`);
     }
 
+    currentDisplay.innerText = '';
     memoryDisplay.appendChild(node);
 }
 
+// deletes the last number in the current display
 function deleteLast(){
     let currentNumbers = currentDisplay.innerText;
     if (!currentNumbers) {
@@ -244,7 +294,7 @@ function clearDisplay() {
 function equal() {
     operationFinished = true;
 
-    if (memoryDisplay.innerText === '' || operationStarted || currentOperation === null) {
+    if (memoryDisplay.innerText === '' || currentOperation === null || errorFound) {
         return;
     }
     else if (currentDisplay.innerText === '') {
@@ -252,8 +302,19 @@ function equal() {
         memoryDisplay.innerText = '';
     }else {
         secondNumber = parseFloat(currentDisplay.innerText);
-        let results = funtionOpsObj[currentOperation](firstNumber, secondNumber);
+        let results = functionOpsObj[currentOperation](firstNumber, secondNumber);
         currentDisplay.innerText = results;
+        let error = checkError(results);
+
+        // Error handling
+        if (error !== 'valid') {
+            clearDisplay();
+            startOver();
+            memoryDisplay.innerText = error;
+            errorFound = true;
+            return;
+        }
+
         if (currentOperation === 'power') {
             memoryDisplay.innerText = `${firstNumber}${operationDisplay}(${secondNumber}) =`;
         }
@@ -292,7 +353,7 @@ function interpretKeyboardInput(input){
     else if (keyboardInputs.includes(input)){
         operations.forEach(function(operation){
             let operattionId = operation.id;
-            if (OpsObj[input] === operattionId) {
+            if (opsObj[input] === operattionId) {
                 operation.click();
             }
         });
@@ -305,6 +366,18 @@ function startOver(){
     currentOperation = null;
     operationDisplay = null;
     operationFinished = true;
+}
+
+function checkError(number){
+    if (isNaN(number)) {
+        return 'Error: Invalid Operation';
+    }
+    else if (number < 0 && oneArgOps.includes(currentOperation)) {
+        return 'Error: Negative Number';
+    }
+    else {      
+        return 'valid';
+    }
 }
 
 // Math operations
@@ -330,6 +403,9 @@ function power(base, power){
 }
 
 function root(number){
+    if (number < 0) {
+        return -1;
+    }
     return Math.sqrt(number);
 }
 
@@ -337,16 +413,23 @@ function percent(first, second) {
     return (first / 100) * second;
 }
 
-function log(number){  
+function log(number){ 
+    if (number <= 0) {
+        return -1;
+    }
     return Math.log10(number);
 }
 
 function factorial (number){
-    if (number=== 0) {
-      return 1;
-    } else {
-      return number * factorial(number - 1);
+    if (number < 0) {
+        return -1;
     }
-}
+    else {
+        if (number=== 0) {
+        return 1;
+        } else {
+        return number * factorial(number - 1);
+        }
+    }
 
-// Need to add error handling 
+}
