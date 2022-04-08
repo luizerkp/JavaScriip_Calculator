@@ -165,6 +165,7 @@ button {
 }
 
 @media only screen and (max-width: 375px){
+
     button {
         height: 55px;
         width: 65px;
@@ -174,6 +175,7 @@ button {
         min-height: 27px;
         font-size: 1.5em; 
     }
+    
     #current {
         font-size: 2em;
         min-height: 40px;
