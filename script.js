@@ -1,9 +1,19 @@
 // adds footer content to the page
 const footer = document.querySelector('.footer');
-const footerPara = document.createElement('p');
-let date = new Date().getFullYear();
-footerPara.textContent = `Copyright © ${date} Luis Tamarez All Rights Reserved`;
-footer.appendChild(footerPara);
+const footerPara_1 = document.createElement('p');
+const footerPara_2 = document.createElement('p');
+const a = document.createElement('a');
+a.href = "https://github.com/luizerkp";
+const githubLogo = document.createElement('img');
+githubLogo.src="imgs/GitHubMarkSmall.png"
+a.appendChild(githubLogo)
+a.setAttribute('id', 'github-log');
+const date = new Date().getFullYear();
+footerPara_1.textContent = `Copyright © ${date} Luis Tamarez`
+footerPara_2.textContent = "All Rights Reserved";
+footer.appendChild(footerPara_1);
+footer.appendChild(a);
+footer.appendChild(footerPara_2)
 
 // keeps track of the current operation of possible keyboard inputs to match in opsObj
 const keyboardInputs = ['+', '-', '/', '*', 'x', 'X', '%', '^'];

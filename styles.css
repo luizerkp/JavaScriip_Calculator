@@ -41,7 +41,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 100vw;
     flex: 1 0 auto;
 }
 
@@ -87,7 +87,6 @@ button {
     display: flex;
     height: 75px;
     width: 85px; 
-    border: solid 1px #646464;
     justify-content: center;
     align-items: center;
     border-radius: 25%;
@@ -123,3 +122,63 @@ button {
     font-weight: bold;
 
 }
+
+#github-log {
+    padding-left: 3px;
+    padding-right: 8px;
+}
+#github-log > img {
+    height: 20px;
+    width: 20px;
+}
+
+@media only screen and (max-width:700px){
+
+    .header p, .highlight {
+        margin: 5px;
+        font-size: 14px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        margin: 10px;
+    }
+    .highlight {
+        padding: 2px;
+        margin: 2px;
+        line-height: 1.5;
+    }
+    .calc-grid {
+        grid-gap: 3px;
+        padding: 10px;
+        margin: 5px;
+        
+    }
+    .container {
+        flex: 1 1 auto;
+    }
+
+    .footer {
+        height: 50px;
+        font-size: .8rem;
+    }
+}
+
+@media only screen and (max-width: 375px){
+    button {
+        height: 55px;
+        width: 65px;
+    }
+
+    #memory {
+        min-height: 27px;
+        font-size: 1.5em; 
+    }
+    #current {
+        font-size: 2em;
+        min-height: 40px;
+    }
+}
+
+
+
