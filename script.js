@@ -389,6 +389,8 @@ function startOver(){
 function checkError(number){
     if (isNaN(number)) {
         return 'Error';
+    } else if (currentOperation === 'divide' && secondNumber === 0) {
+      return 'Undefined';
     }
     else if (number === Infinity || number === -Infinity) {
         return number;
